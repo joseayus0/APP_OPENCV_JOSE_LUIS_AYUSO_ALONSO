@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>OpenCV.js - Aritmética de Imágenes</title>
+  <style>
+    body { font-family: sans-serif; }
+    .row { display: flex; gap: 20px; margin-bottom: 20px; }
+    .panel { text-align: center; }
+    canvas { border: 1px solid #ccc; }
+    button { margin: 4px; }
+  </style>
+</head>
+<body>
+  <h2>OpenCV.js - Aritmética de Imágenes</h2>
+  <p id="status">Cargando OpenCV.js…</p>
+
+  <div class="row">
+    <div class="panel">
+      <h3>Imagen 1</h3>
+      <!-- Ahora la imagen se carga desde /images -->
+      <img id="img1" src="images/img1.jpg" style="display:none;">
+      <canvas id="canvasInput1"></canvas>
+    </div>
+
+    <div class="panel">
+      <h3>Imagen 2</h3>
+      <!-- Segunda imagen cargada automáticamente -->
+      <img id="img2" src="images/img2.jpg" style="display:none;">
+      <canvas id="canvasInput2"></canvas>
+    </div>
+
+    <div class="panel">
+      <h3>Resultado</h3>
+      <canvas id="canvasOutput"></canvas>
+    </div>
+  </div>
+
+  <div>
+    <button onclick="doAdd()">Add (img1 + img2)</button>
+    <button onclick="doSub()">Subtract (img1 - img2)</button>
+    <button onclick="doAnd()">Bitwise AND</button>
+    <button onclick="doOr()">Bitwise OR</button>
+    <button onclick="doXor()">Bitwise XOR</button>
+    <button onclick="doNot()">Bitwise NOT (sobre img1)</button>
+  </div>
+
+  <!-- OpenCV.js desde la web oficial -->
+  <script async src="https://docs.opencv.org/3.4/opencv.js"
+          onload="onOpenCvReady();" type="text/javascript"></script>
+
+  <script>
+    const statusElement = document.getElementById('status');
+    const imgElement1 = document.getElementById('img1');
+    const imgElement2 = document.getElementById('img2');
+
+    imgElement1.onload = () => {
+      drawImageToCanvas(imgElement1, 'canvasInput1');
+    };
+    imgElement2.onload = () => {
+      drawImageToCanvas(imgElement2, 'canvasInput2');
+    };
+
+    function drawImageToCanvas(img, canvasId) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+    }
+
+    function onOpenCvReady() {
+      statusElement.textContent = 'OpenCV.js listo 👍';
+    }
+
+    function getTwoMatsSameSize() {
+  // Leer directamente de las <img> originales
+  let src1 = cv.imread('img1');
+  let src2 = cv.imread('img2');
+
+  // Ajustar tamaños si no coinciden
+  if (src1.rows !== src2.rows || src1.cols !== src2.cols) {
+    let dsize = new cv.Size(src1.cols, src1.rows);
+    let tmp = new cv.Mat();
+    cv.resize(src2, tmp, dsize, 0, 0, cv.INTER_AREA);
+    src2.delete();
+    src2 = tmp;
+  }
+  return { src1, src2 };
+}
+
+
+    function doAdd() {
+      const { src1, src2 } = getTwoMatsSameSize();
+      let dst = new cv.Mat();
+      cv.add(src1, src2, dst);
+      cv.imshow('canvasOutput', dst);
+      src1.delete(); src2.delete(); dst.delete();
+    }
+
+    function doSub() {
+      const { src1, src2 } = getTwoMatsSameSize();
+      let dst = new cv.Mat();
+      cv.subtract(src1, src2, dst);
+      cv.imshow('canvasOutput', dst);
+      src1.delete(); src2.delete(); dst.delete();
+    }
+
+    function doAnd() {
+      const { src1, src2 } = getTwoMatsSameSize();
+      let dst = new cv.Mat();
+      cv.bitwise_and(src1, src2, dst);
+      cv.imshow('canvasOutput', dst);
+      src1.delete(); src2.delete(); dst.delete();
+    }
+
+    function doOr() {
+      const { src1, src2 } = getTwoMatsSameSize();
+      let dst = new cv.Mat();
+      cv.bitwise_or(src1, src2, dst);
+      cv.imshow('canvasOutput', dst);
+      src1.delete(); src2.delete(); dst.delete();
+    }
+
+    function doXor() {
+      const { src1, src2 } = getTwoMatsSameSize();
+      let dst = new cv.Mat();
+      cv.bitwise_xor(src1, src2, dst);
+      cv.imshow('canvasOutput', dst);
+      src1.delete(); src2.delete(); dst.delete();
+    }
+
+    function doNot() {
+      let src1 = cv.imread('canvasInput1');
+      let dst = new cv.Mat();
+      cv.bitwise_not(src1, dst);
+      cv.imshow('canvasOutput', dst);
+      src1.delete(); dst.delete();
+    }
+  </script>
+</body>
+</html>
