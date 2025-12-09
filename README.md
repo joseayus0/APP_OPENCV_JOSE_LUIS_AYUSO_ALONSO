@@ -39,3 +39,20 @@ Bitwise AND	Comparación lógica
 Bitwise OR	Combinación de píxeles
 Bitwise XOR	Detección de diferencias
 Bitwise NOT	Negativo de la imagen 1
+
+## Registro de visitas (local en repo)
+
+Este proyecto guarda un registro de accesos en `visits.json` dentro del repositorio.
+Cuando alguien carga la web, la función serverless `/api/track` escribe una entrada
+(tstamp, ip parcialmente enmascarada, user-agent, referrer) en `visits.json`
+mediante la GitHub REST API.
+
+Para que esto funcione en Vercel:
+
+1. Crear un Personal Access Token en GitHub con permisos para el repo.
+2. En Vercel → Project → Settings → Environment Variables añadir:
+   - `GITHUB_TOKEN` (secret)
+   - `GITHUB_REPO` = "usuario/repo"
+   - `GITHUB_BRANCH` = "main"
+
+Nota: cada visita genera un commit; el archivo `visits.json` es persistente entre despliegues.
